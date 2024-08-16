@@ -29,9 +29,14 @@ async function run() {
     const productsCollection = client.db('chooseProducts').collection('products');
 
     app.get('/products', async(req, res) => {
-        console.log('query', req.query)
-        const cursor = productsCollection.find();
-        const result = await cursor.toArray();
+        const page = parseInt(req.query.page);
+        const size = parseInt(req.query.size);
+        // const cursor = productsCollection.find();
+        // const result = await cursor.toArray();
+        const result = await productsCollection.find()
+        .skip(page * size)
+        .limit(size)
+        .toArray();
         res.send(result)
     })
 
