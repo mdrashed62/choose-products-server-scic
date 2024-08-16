@@ -34,6 +34,14 @@ async function run() {
         res.send(result)
     })
 
+    //start pagination
+    app.get ('/productsCount', async (req, res) => {
+        const count = await productsCollection.estimatedDocumentCount();
+        res.send({count});
+    })
+    //end pagination
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
