@@ -24,7 +24,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server
-    await client.connect();
+    // await client.connect();
 
     const productsCollection = client.db('chooseProducts').collection('products');
 
@@ -33,8 +33,12 @@ async function run() {
         const page = parseInt(req.query.page) || 0;
         const size = parseInt(req.query.size) || 10;
         const sort = req.query.sort === 'asc' ? 1 : -1;
+        const filter = req.query;
+        console.log(page, size, filter)
 
-        const query = {};
+        const query = {
+          name: {$regex: filter.search, $options: 'i'}
+        };
         const options = {
           sort: { price: sort },
         };
