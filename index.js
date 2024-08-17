@@ -24,21 +24,36 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server
-    // await client.connect();
+    await client.connect();
 
     const productsCollection = client.db('chooseProducts').collection('products');
 
+    // Get products with pagination, sorting, search, and filtering
     app.get('/products', async (req, res) => {
       try {
         const page = parseInt(req.query.page) || 0;
-        const size = parseInt(req.query.size) || 10;
+        const size = parseInt(req.query.size) || 8;
         const sort = req.query.sort === 'asc' ? 1 : -1;
-        const filter = req.query;
-        console.log(page, size, filter)
+        const search = req.query.search || '';
+        const selectedBrand = req.query.brand || '';
+        const selectedCategory = req.query.category || '';
+        const priceRange = req.query.priceRange || '';
 
+        console.log(selectedBrand)
         const query = {
-          name: {$regex: filter.search, $options: 'i'}
+          name: { $regex: search, $options: 'i' },
+          ...(selectedBrand && { brand: { $regex: new RegExp(selectedBrand, 'i') } }),
+          ...(selectedCategory && { category: { $regex: new RegExp(selectedCategory, 'i') } }),
+          ...(priceRange && {
+            price: {
+              ...(priceRange === 'low' && { $lt: 50 }),
+              ...(priceRange === 'medium' && { $gte: 50, $lte: 100 }),
+              ...(priceRange === 'high' && { $gt: 100 }),
+            },
+          }),
         };
+
+
         const options = {
           sort: { price: sort },
         };
@@ -54,7 +69,7 @@ async function run() {
       }
     });
 
-    // Start pagination
+    // Get total product count (useful for pagination)
     app.get('/productsCount', async (req, res) => {
       try {
         const count = await productsCollection.estimatedDocumentCount();
