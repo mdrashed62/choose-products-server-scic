@@ -34,26 +34,8 @@ async function run() {
         const page = parseInt(req.query.page) || 0;
         const size = parseInt(req.query.size) || 8;
         const sort = req.query.sort === 'asc' ? 1 : -1;
-        const search = req.query.search || '';
-        const selectedBrand = req.query.brand || '';
-        const selectedCategory = req.query.category || '';
-        const priceRange = req.query.priceRange || '';
-
-        console.log(selectedBrand)
-        const query = {
-          name: { $regex: search, $options: 'i' },
-          ...(selectedBrand && { brand: { $regex: new RegExp(selectedBrand, 'i') } }),
-          ...(selectedCategory && { category: { $regex: new RegExp(selectedCategory, 'i') } }),
-          ...(priceRange && {
-            price: {
-              ...(priceRange === 'low' && { $lt: 50 }),
-              ...(priceRange === 'medium' && { $gte: 50, $lte: 100 }),
-              ...(priceRange === 'high' && { $gt: 100 }),
-            },
-          }),
-        };
-
-
+      
+        const query = {};
         const options = {
           sort: { price: sort },
         };
